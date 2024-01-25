@@ -37,6 +37,8 @@ def server(input: Inputs, output: Outputs, session: Session):
     def filtered_df():
         filt_df = df
         filt_df = filt_df.loc[filt_df['Snow on Top (cm)'] > input.top_snow()]
+        if input.toggle():
+            filt_df = filt_df.loc[filt_df['Resort Open'] == True]
         return filt_df
 
     # Render map.
