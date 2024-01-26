@@ -66,10 +66,24 @@ def build_resort_map(df):
         else:
             color = 'red'
 
+        # Collate information for marker.
+        name = row['Name']
+        top_snow = row['Snow on Top (cm)']
+        bottom_snow = str(row['Snow at Bottom (cm)'])
+        if bottom_snow == 'nan':
+            bottom_snow = 'n/a'
+        marker_popup_content = f'''<h5>{name}</h5>
+                                <p>Resort Details:</p>
+                                <ul>
+                                    <li><strong>Snow on top (cm):</strong> {top_snow}</li>
+                                    <li><strong>Snow on bottom (cm):</strong> {bottom_snow}</li>
+                                </ul>
+                                <a href="https://www.example.com" target="_blank">Visit Example.com</a>'''
+
         # Add markers.
         folium.Marker(
             location=[row['Latitude'], row['Longitude']],
-            popup=row['Name'],
+            popup=folium.Popup(marker_popup_content, max_width=300),
             icon=folium.Icon(color=color)
         ).add_to(map)
 
