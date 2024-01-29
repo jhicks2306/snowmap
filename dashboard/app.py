@@ -1,3 +1,4 @@
+import ast
 from pathlib import Path
 import pandas as pd
 from shinywidgets import output_widget, register_widget
@@ -46,6 +47,12 @@ def server(input: Inputs, output: Outputs, session: Session):
     def folium_map():
         display_df = filtered_df()
         return build_resort_map(display_df)
+
+
+def filter_regions(regions, selections):
+    regions_list = ast.literal_eval(regions) # regions are initally in string format.
+    intersection = set(regions_list) & set(selections)
+    return len(intersection) > 0
 
 
 def build_resort_map(df):
