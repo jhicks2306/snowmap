@@ -7,6 +7,12 @@ import folium
 from shiny import App, Inputs, Outputs, Session, reactive, render, ui
 
 df = pd.read_csv("ski-resorts.csv")
+regions = ['Østlandet',
+        'Sørlandet',
+        'Nord-Norge',
+        'Nord-Vestlandet',
+        'Midt-Norge',
+        'Sør-Vestlandet']
 
 
 app_ui = ui.page_sidebar(
@@ -21,13 +27,21 @@ app_ui = ui.page_sidebar(
         ui.input_switch(
             'toggle',
             'Hide closed resorts',
-            value=False)
+            value=False),
+        ui.input_selectize(  
+            "region_selectize",  
+            "Select options below:",  
+            choices=regions,
+            selected=regions,  
+            multiple=True,  
+        ), 
     ),
     ui.row(
         ui.card(
             ui.card_header("Norwegian Ski Resorts"),
             ui.output_ui('folium_map')
-        )          
+        ),
+        ui.output_text("value")          
     ),
 )
 
@@ -36,8 +50,10 @@ def server(input: Inputs, output: Outputs, session: Session):
     # Apply filters to DataFrame
     @reactive.Calc
     def filtered_df():
+        selections = input.region_selectize()
         filt_df = df
         filt_df = filt_df.loc[filt_df['Snow on Top (cm)'] > input.top_snow()]
+        filt_df = filt_df.loc[filt_df['Region'].apply(filter_regions, args=(selections,))]
         if input.toggle():
             filt_df = filt_df.loc[filt_df['Resort Open'] == True]
         return filt_df
@@ -47,6 +63,10 @@ def server(input: Inputs, output: Outputs, session: Session):
     def folium_map():
         display_df = filtered_df()
         return build_resort_map(display_df)
+    
+    @render.text
+    def value():
+        return f'{input.region_selectize()}'
 
 
 def filter_regions(regions, selections):
