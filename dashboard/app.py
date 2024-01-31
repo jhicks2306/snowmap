@@ -7,12 +7,13 @@ import folium
 from shiny import App, Inputs, Outputs, Session, reactive, render, ui
 
 df = pd.read_csv("ski-resorts.csv")
-regions = ['Østlandet',
-        'Sørlandet',
-        'Nord-Norge',
-        'Nord-Vestlandet',
-        'Midt-Norge',
-        'Sør-Vestlandet']
+regions = {'Østlandet': 'East',
+        'Sørlandet': 'South',
+        'Nord-Norge': 'North',
+        'Nord-Vestlandet': 'North-west',
+        'Midt-Norge':'Midlands',
+        'Sør-Vestlandet': 'South-west'}
+initial_selections = ['Østlandet', 'Sørlandet', 'Nord-Norge', 'Nord-Vestlandet', 'Midt-Norge', 'Sør-Vestlandet']
 
 
 app_ui = ui.page_sidebar(
@@ -24,17 +25,16 @@ app_ui = ui.page_sidebar(
             200,
             50,
         ),
+        ui.input_checkbox_group(  
+            "region_checkboxes",  
+            "Regions:",  
+            choices=regions,
+            selected=initial_selections,  
+        ), 
         ui.input_switch(
             'toggle',
             'Hide closed resorts',
             value=False),
-        ui.input_selectize(  
-            "region_selectize",  
-            "Select options below:",  
-            choices=regions,
-            selected=regions,  
-            multiple=True,  
-        ), 
     ),
     ui.row(
         ui.card(
@@ -50,7 +50,7 @@ def server(input: Inputs, output: Outputs, session: Session):
     # Apply filters to DataFrame
     @reactive.Calc
     def filtered_df():
-        selections = input.region_selectize()
+        selections = input.region_checkboxes()
         filt_df = df
         filt_df = filt_df.loc[filt_df['Snow on Top (cm)'] > input.top_snow()]
         filt_df = filt_df.loc[filt_df['Region'].apply(filter_regions, args=(selections,))]
@@ -66,7 +66,7 @@ def server(input: Inputs, output: Outputs, session: Session):
     
     @render.text
     def value():
-        return f'{input.region_selectize()}'
+        return f'{input.region_checkboxes()}'
 
 
 def filter_regions(regions, selections):
