@@ -39,7 +39,8 @@ app_ui = ui.page_sidebar(
     ui.row(
         ui.card(
             ui.card_header("Norwegian Ski Resorts"),
-            ui.output_ui('folium_map')
+            ui.output_ui('folium_map'),
+            height='95vh',   
         ),
         ui.output_text("value")          
     ),
@@ -83,7 +84,7 @@ def build_resort_map(df):
     # Create map and center.
     avg_lat = df['Latitude'].mean()
     avg_lon = df['Longitude'].mean()
-    map = folium.Map(location=[avg_lat, avg_lon], zoom_start=6)
+    map = folium.Map(location=[avg_lat, avg_lon], zoom_start=6, height='100%')
 
     for index, row in df.iterrows():
 
