@@ -18,6 +18,20 @@ initial_selections = ['Østlandet', 'Sørlandet', 'Nord-Norge', 'Nord-Vestlandet
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
+        ui.tags.h4("About"),
+        ui.tags.p(
+        """
+        This app helps you find a Norwegion ski resort
+        to visit. Use the filters below to narrow your search
+        and select the pins for more resort information.
+        """,
+        style="""
+        text-align: left;
+        word-break:break-word;
+        hyphens: auto;
+        """,
+        ),
+        ui.tags.hr(),
         ui.input_slider(
             'top_snow',
             'Snow on top (cm)',
