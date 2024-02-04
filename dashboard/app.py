@@ -89,6 +89,12 @@ def filter_regions(regions, selections):
     intersection = set(regions_list) & set(selections)
     return len(intersection) > 0
 
+def check_nan(item):
+    if pd.isna(item):
+        return "n/a"
+    else:
+        return int(item)
+
 
 def build_resort_map(df):
     """
@@ -110,8 +116,14 @@ def build_resort_map(df):
 
         # Collate information for marker.
         name = row['Name']
-        top_snow = row['Snow on Top (cm)']
-        bottom_snow = str(row['Snow at Bottom (cm)'])
+        top_snow = check_nan(row['Snow on Top (cm)'])
+        bottom_snow = check_nan(row['Snow at Bottom (cm)'])
+        open_lifts = row['Lifts Open']
+        total_lifts = row['Total Lifts']
+        open_slopes = row['Slopes Open']
+        total_slopes = row['Total Slopes']
+        weekend_forecast = row['Weekend Forecast']
+        url = row['Url']
         if bottom_snow == 'nan':
             bottom_snow = 'n/a'
         marker_popup_content = f'''<h5>{name}</h5>
@@ -119,8 +131,11 @@ def build_resort_map(df):
                                 <ul>
                                     <li><strong>Snow on top (cm):</strong> {top_snow}</li>
                                     <li><strong>Snow on bottom (cm):</strong> {bottom_snow}</li>
+                                    <li><strong>Lifts open:</strong> {open_lifts} of {total_lifts}</li>
+                                    <li><strong>Lifts open:</strong> {open_slopes} of {total_slopes}</li>
+                                    <li><strong>Weekend forecast:</strong> {weekend_forecast}</li>
                                 </ul>
-                                <a href="https://www.example.com" target="_blank">Visit Example.com</a>'''
+                                <a href="{url}" target="_blank">Visit website</a>'''
 
         # Add markers.
         folium.Marker(
