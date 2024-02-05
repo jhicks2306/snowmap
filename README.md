@@ -1,8 +1,23 @@
-First commit for snowmap project.
+## Norway Ski Resort Map
 
-Collected disclaimer for Fnugg
+Dashboard showing latest information for Norwegian ski resorts.
 
-Weather and driving data is provided by fnugg, Yr, Meteorological Institute and NRK
+#### Skills practiced
+- The dashboard is built using `Shiny`.
+- Data is sources using Fnugg `API`.
+- Data transformed and processed using `pandas`.
 
+#### Try out the dashboard
+1. Clone the repo.
+2. Install requirements.
+```
+pip install -r requirements.txt
+```
+2. Run the "Fnugg-download.ipynb" file to create a csv file of ski resort information in the "dashboard" directory.
+3. Then run the Shiny app from within the "dashboard" directory.
+```
+shiny run
+```
 
-[<img src="https://fnugg.no/app/uploads/2015/10/Fnugg_logotype_horizontal_Pantone_306U.svg" alt="Fnugg" width="100" height="30">](https://fnugg.no/)
+#### Video demo
+Here is a short video of the dashboard in action.
