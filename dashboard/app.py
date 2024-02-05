@@ -6,16 +6,21 @@ import folium
 
 from shiny import App, Inputs, Outputs, Session, reactive, render, ui
 
+here = Path(__file__).parent
+
+# Read data and set default values for filters.
 df = pd.read_csv("ski-resorts.csv")
 regions = {'Østlandet': 'East',
-        'Sørlandet': 'South',
         'Nord-Norge': 'North',
         'Nord-Vestlandet': 'North-west',
         'Midt-Norge':'Midlands',
+        'Sørlandet': 'South',
         'Sør-Vestlandet': 'South-west'}
 initial_selections = ['Østlandet', 'Sørlandet', 'Nord-Norge', 'Nord-Vestlandet', 'Midt-Norge', 'Sør-Vestlandet']
+weather = sorted(df['Weekend Forecast'].unique().tolist())
 
 
+# Define frontend components for the app.
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.tags.h4("About"),
@@ -34,7 +39,7 @@ app_ui = ui.page_sidebar(
         ui.tags.hr(),
         ui.input_slider(
             'top_snow',
-            'Snow on top (cm)',
+            'Snow on top (cm):',
             0,
             200,
             50,
@@ -44,6 +49,12 @@ app_ui = ui.page_sidebar(
             "Regions:",  
             choices=regions,
             selected=initial_selections,  
+        ),
+        ui.input_checkbox_group(  
+            "weather_checkboxes",  
+            "Weekend forecast:",  
+            choices=weather,
+            selected=weather,  
         ), 
         ui.input_switch(
             'toggle',
@@ -56,7 +67,11 @@ app_ui = ui.page_sidebar(
             ui.output_ui('folium_map'),
             height='95vh',   
         ),
-        ui.output_text("value")          
+    ),
+    ui.row(
+        ui.tags.p('Data for this dashboard is provided by the Fnugg API.', display='inline'),
+        ui.tags.a(ui.output_image('fnugg_logo'), href='https://api.fnugg.no/'         
+        ),
     ),
 )
 
@@ -65,10 +80,12 @@ def server(input: Inputs, output: Outputs, session: Session):
     # Apply filters to DataFrame
     @reactive.Calc
     def filtered_df():
-        selections = input.region_checkboxes()
+        regions_selected = input.region_checkboxes()
+        forecasts_selected = input.weather_checkboxes()
         filt_df = df
         filt_df = filt_df.loc[filt_df['Snow on Top (cm)'] > input.top_snow()]
-        filt_df = filt_df.loc[filt_df['Region'].apply(filter_regions, args=(selections,))]
+        filt_df = filt_df.loc[filt_df['Region'].apply(filter_regions, args=(regions_selected,))]
+        filt_df = filt_df.loc[filt_df['Weekend Forecast'].apply(filter_weather, args=(forecasts_selected,))]
         if input.toggle():
             filt_df = filt_df.loc[filt_df['Resort Open'] == True]
         return filt_df
@@ -79,10 +96,14 @@ def server(input: Inputs, output: Outputs, session: Session):
         display_df = filtered_df()
         return build_resort_map(display_df)
     
-    @render.text
-    def value():
-        return f'{input.region_checkboxes()}'
+    @render.image
+    def fnugg_logo():
+        img = {"src": here / "Fnugg_logo.svg", "width": "100px"}
+        return img
 
+def filter_weather(forecast, selections):
+    intersection = set([forecast]) & set(selections)
+    return len(intersection) > 0
 
 def filter_regions(regions, selections):
     regions_list = ast.literal_eval(regions) # regions are initally in string format.
