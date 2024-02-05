@@ -21,3 +21,4 @@ shiny run
 
 #### Video demo
 Here is a short video of the dashboard in action.
+[Demo](https://github.com/jhicks2306/snowmap/assets/45722942/a1518b43-6c1c-4009-ba40-d5f0e167ba8c)
